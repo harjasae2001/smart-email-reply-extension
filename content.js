@@ -60,7 +60,7 @@ function injectButton() {
       button.disabled = true;
 
       const emailContent = getEmailContent();
-      // console.log(emailContent);
+
       const response = await fetch("http://localhost:8080/api/email/generate", {
         method: "POST",
         headers: {
@@ -72,28 +72,24 @@ function injectButton() {
         }),
       });
 
-      console.log(response);
       if (!response.ok) {
         throw new Error("API Request Failed");
       }
 
-      const generatedReply = await response.json();
-
+      const generatedReply = await response.text();
+      console.log(generatedReply);
       const composeBox = document.querySelector(
-        '[role="textbox][g_editable="true"]'
+        '[role="textbox"][g_editable="true"]'
       );
 
       if (composeBox) {
         composeBox.focus();
         document.execCommand("insertText", false, generatedReply);
       } else {
-        console.error("Compose box not found");
+        throw new Error("Could not append the data");
       }
     } catch (error) {
-      console.log(error);
-      console.error("Failed to generate the error");
-
-      //   alert("Failed to generate reply");
+      console.error("Error generating reply: ", error);
     } finally {
       button.innerHTML = "AI Reply";
       button.disable = false;
@@ -115,9 +111,7 @@ const observer = new MutationObserver((mutations) => {
     );
 
     if (hasComposedElements) {
-      console.log("Compose Window Detected");
-
-      setTimeout(injectButton, 500);
+      setTimeout(injectButton, 100);
     }
   }
 });
